@@ -1,0 +1,35 @@
+services:
+  a2a-registry:
+    build: ./registry
+    container_name: a2a-registry
+    restart: unless-stopped
+    volumes:
+      - registry-data:/data
+    networks:
+      - a2a-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  a2a-nginx:
+    image: nginx:1.27-alpine
+    container_name: a2a-nginx
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8091:80"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - a2a-net
+    depends_on:
+      a2a-registry:
+        condition: service_started
+
+networks:
+  a2a-net:
+    driver: bridge
+
+volumes:
+  registry-data:
