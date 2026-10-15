@@ -110,6 +110,50 @@ curl -X POST https://a2a.jiademin2688.top/a2a/jsonrpc \
   }'
 ```
 
+## 🧩 集成生态
+
+### Python SDK（sdk/a2a_hub）
+
+```python
+from a2a_hub import A2AHubClient
+
+client = A2AHubClient()  # 默认指向 https://a2a.jiademin2688.top
+agents = client.search_agents("translate")
+card = client.get_agent_card(agents[0]["id"])
+```
+
+### LangChain（integrations/langchain）
+
+```python
+from a2a_hub_tool import make_a2a_search_tool, make_a2a_call_tool
+
+tools = [make_a2a_search_tool(), make_a2a_call_tool()]
+# 供任意支持 Tool 的 LangChain Agent 使用
+```
+
+### CrewAI（integrations/crewai）
+
+```python
+from a2a_hub_tool import A2ASearchTool, A2ASendMessageTool
+from crewai import Agent
+
+researcher = Agent(
+    role="Agent Researcher",
+    goal="Find useful AI agents on A2A Hub",
+    backstory="You discover remote agents via the public A2A registry.",
+    tools=[A2ASearchTool()],
+)
+```
+
+### AutoGen（integrations/autogen）
+
+```python
+from a2a_hub_tool import a2a_search_agents, a2a_send_message
+# 注册为 function_map 中的函数工具即可
+```
+
+所有集成默认指向公共平台 https://a2a.jiademin2688.top，可通过环境变量 A2A_HUB_URL 指向自部署实例。
+
 ## 📝 技术栈
 
 - **后端**：FastAPI + SQLite（轻量，零外部依赖）
